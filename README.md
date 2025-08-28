@@ -223,7 +223,7 @@ pnpm format
 
 ## 👨‍💻 作者
 
-**李小伟**
+**LXW**
 
 - GitHub: [@lixiaowei11111](https://github.com/lixiaowei11111)
 - 网站: [https://lixiaowei11111.github.io](https://lixiaowei11111.github.io)

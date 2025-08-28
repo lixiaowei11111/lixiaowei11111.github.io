@@ -33,7 +33,7 @@ Next.js 15 和 React 19 的发布为前端开发带来了许多激动人心的�
 
 让我们看看如何在项目中使用这些新特性...
     `,
-    author: "李小伟",
+    author: "LXW",
     publishedAt: "2024-01-15",
     tags: ["Next.js", "React", "Frontend", "JavaScript"],
     category: "frontend",
@@ -84,7 +84,7 @@ tl.from(".title", { opacity: 0, y: 30 })
 ### ScrollTrigger 滚动动画
 滚动触发动画是现代网站的重要特性...
     `,
-    author: "李小伟",
+    author: "LXW",
     publishedAt: "2024-01-10",
     tags: ["GSAP", "Animation", "JavaScript", "Frontend"],
     category: "frontend",
@@ -120,7 +120,7 @@ Tailwind CSS 4.0 带来了许多令人兴奋的新特性...
 - 更简单的自定义
 - 更好的类型支持
     `,
-    author: "李小伟",
+    author: "LXW",
     publishedAt: "2024-01-05",
     tags: ["Tailwind", "CSS", "Frontend", "Styling"],
     category: "frontend",
@@ -161,7 +161,7 @@ type EventName<T extends string> = \`on\${Capitalize<T>}\`;
 ## 实际应用场景
 让我们看看如何在实际项目中应用这些高级类型...
     `,
-    author: "李小伟",
+    author: "LXW",
     publishedAt: "2023-12-28",
     tags: ["TypeScript", "JavaScript", "Types", "Programming"],
     category: "frontend",
@@ -215,7 +215,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ## 部署策略
 让我们探讨不同的部署策略和最佳实践...
     `,
-    author: "李小伟",
+    author: "LXW",
     publishedAt: "2023-12-20",
     tags: ["Docker", "DevOps", "Deployment", "Container"],
     category: "devops",

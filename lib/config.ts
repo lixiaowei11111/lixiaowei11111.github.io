@@ -1,13 +1,13 @@
 import type { SiteConfig } from "./types";
 
 export const siteConfig: SiteConfig = {
-  name: "李小伟的技术博客",
+  name: "LXW的技术博客",
   description:
     "专注于前端技术、React、Next.js、TypeScript 等现代 Web 开发技术分享",
   url: "https://lixiaowei11111.github.io",
   author: {
     id: "lixiaowei",
-    name: "李小伟",
+    name: "LXW",
     bio: "全栈开发工程师，专注于现代 Web 技术栈，热爱开源和技术分享。",
     avatar: "/images/avatar.jpg",
     email: "your-email@example.com",

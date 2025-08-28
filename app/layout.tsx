@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "GSAP",
     "前端开发",
     "技术博客",
-    "李小伟",
+    "LXW",
   ],
   authors: [
     {
