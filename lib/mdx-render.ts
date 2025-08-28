@@ -42,3 +42,25 @@ export async function getRenderedPost(
     renderedContent,
   };
 }
+
+export async function getRenderedAbout(): Promise<{
+  title: string;
+  description: string;
+  renderedContent: string;
+}> {
+  const fs = await import("fs");
+  const path = await import("path");
+  const matter = await import("gray-matter");
+
+  const aboutPath = path.join(process.cwd(), "content/pages/about.mdx");
+  const fileContent = fs.readFileSync(aboutPath, "utf8");
+  const { data, content } = matter.default(fileContent);
+
+  const renderedContent = await renderMDXToHTML(content);
+
+  return {
+    title: data.title || "关于我",
+    description: data.description || "了解更多关于我的信息、技能和经历",
+    renderedContent,
+  };
+}

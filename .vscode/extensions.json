@@ -2,5 +2,7 @@
   "recommendations": [
     "biomejs.biome",
     "streetsidesoftware.code-spell-checker",
+    "unifiedjs.vscode-mdx",
+    "bradlc.vscode-tailwindcss"
   ]
 }
