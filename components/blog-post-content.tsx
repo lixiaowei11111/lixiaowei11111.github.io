@@ -2,13 +2,17 @@
 
 import { ArrowLeft, Calendar, Clock, Folder, Tag, User } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 import { AnimatedElement } from "@/components/animated-element";
 import { BlogCard } from "@/components/blog-card";
 import { ClickEffects } from "@/components/click-effects";
+import { Comments } from "@/components/comments";
+import { trackEvent, trackPageView } from "@/components/google-analytics";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ViewCounter } from "@/components/view-counter";
 import type { BlogPost, Category } from "@/lib/types";
 
 interface BlogPostContentProps {
@@ -22,6 +26,15 @@ export function BlogPostContent({
   category,
   relatedPosts,
 }: BlogPostContentProps) {
+  // 页面访问统计
+  useEffect(() => {
+    // 统计页面访问
+    trackPageView(window.location.href, renderedPost.title);
+
+    // 统计文章阅读事件
+    trackEvent("article_view", "blog", renderedPost.slug);
+  }, [renderedPost.title, renderedPost.slug]);
+
   return (
     <div className="min-h-screen">
       <ClickEffects />
@@ -107,6 +120,7 @@ export function BlogPostContent({
                     <Clock className="h-4 w-4" />
                     <span>阅读时间 {renderedPost.readingTime} 分钟</span>
                   </div>
+                  <ViewCounter slug={renderedPost.slug} />
                 </div>
 
                 {/* 标签 */}
@@ -142,6 +156,11 @@ export function BlogPostContent({
               }}
             />
           </Card>
+
+          {/* 评论区 */}
+          <AnimatedElement animation="slideInUp" delay={0.3} className="mt-12">
+            <Comments slug={renderedPost.slug} />
+          </AnimatedElement>
 
           {/* 相关文章 */}
           {relatedPosts.length > 0 && (

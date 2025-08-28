@@ -48,8 +48,8 @@ export async function getRenderedAbout(): Promise<{
   description: string;
   renderedContent: string;
 }> {
-  const fs = await import("fs");
-  const path = await import("path");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
   const matter = await import("gray-matter");
 
   const aboutPath = path.join(process.cwd(), "content/pages/about.mdx");

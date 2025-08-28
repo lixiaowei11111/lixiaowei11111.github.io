@@ -14,7 +14,8 @@
       "!dist",
       "!build",
       "!.vscode",
-      "!components/ui"
+      "!components/ui",
+      "tsconfig.json"
     ]
   },
   "formatter": {

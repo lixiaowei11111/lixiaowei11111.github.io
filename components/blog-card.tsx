@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { ViewCounter } from "@/components/view-counter";
 import { cn } from "@/lib/utils";
 import { animationManager } from "../lib/animations";
 import type { BlogPost } from "../lib/types";
@@ -107,6 +108,7 @@ export function BlogCard({ post, featured = false, className }: BlogCardProps) {
               <Clock className="h-3 w-3" />
               <span>{post.readingTime} 分钟阅读</span>
             </div>
+            <ViewCounter slug={post.slug} increment={false} />
           </div>
 
           <div className="flex flex-wrap gap-1">

@@ -137,15 +137,6 @@ const projects = [
 ];
 
 export default function ProjectsPage() {
-  // 项目分类
-  const categories = [
-    "全部",
-    "Web App",
-    "Library",
-    "Backend",
-    "Architecture",
-    "Mobile App",
-  ];
   const featuredProjects = projects.filter((project) => project.featured);
   const otherProjects = projects.filter((project) => !project.featured);
 
