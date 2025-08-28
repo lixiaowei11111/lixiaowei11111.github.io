@@ -5,19 +5,6 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
-const nextConfig: NextConfig = {
-  output: "export",
-  trailingSlash: true,
-  images: {
-    unoptimized: true,
-  },
-  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
-  experimental: {
-    optimizePackageImports: ["lucide-react", "@radix-ui/react-avatar"],
-    mdxRs: false, // 确保使用 @next/mdx 而不是实验性的 MDX
-  },
-};
-
 const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm],
@@ -37,4 +24,18 @@ const withMDX = createMDX({
   },
 });
 
+const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  // Configure pageExtensions to include md and mdx
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-avatar"],
+  },
+};
+
+// Merge MDX config with Next.js config
 export default withMDX(nextConfig);
