@@ -1,0 +1,50 @@
+[
+  {
+    "id": "frontend",
+    "name": "前端开发",
+    "slug": "frontend",
+    "description": "前端技术、框架、工具和最佳实践",
+    "color": "#3b82f6",
+    "icon": "💻"
+  },
+  {
+    "id": "backend",
+    "name": "后端开发",
+    "slug": "backend",
+    "description": "服务端技术、API 设计、数据库和架构",
+    "color": "#10b981",
+    "icon": "🔧"
+  },
+  {
+    "id": "devops",
+    "name": "运维部署",
+    "slug": "devops",
+    "description": "DevOps、CI/CD、容器化和云服务",
+    "color": "#f59e0b",
+    "icon": "🚀"
+  },
+  {
+    "id": "design",
+    "name": "设计开发",
+    "slug": "design",
+    "description": "UI/UX 设计、用户体验和设计系统",
+    "color": "#ef4444",
+    "icon": "🎨"
+  },
+  {
+    "id": "tutorial",
+    "name": "教程指南",
+    "slug": "tutorial",
+    "description": "详细的技术教程和学习指南",
+    "color": "#8b5cf6",
+    "icon": "📚"
+  },
+  {
+    "id": "thoughts",
+    "name": "技术思考",
+    "slug": "thoughts",
+    "description": "技术见解、行业趋势和个人思考",
+    "color": "#06b6d4",
+    "icon": "💭"
+  }
+]
