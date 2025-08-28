@@ -12,7 +12,6 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
-  outputFileTracingRoot: "/home/lxw/code_project/lixiaowei11111.github.io",
   experimental: {
     optimizePackageImports: ["lucide-react", "@radix-ui/react-avatar"],
     mdxRs: false, // 确保使用 @next/mdx 而不是实验性的 MDX
