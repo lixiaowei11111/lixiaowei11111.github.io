@@ -30,12 +30,12 @@ function FloatingElements() {
   // 客户端挂载后生成随机元素
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(8)].map((_, i) => (
+      {[...Array(12)].map((_, i) => (
         <div
           key={`floating-${i}`}
           className={cn(
-            "absolute w-1 h-1 bg-primary/10 rounded-full animate-float",
-            "opacity-0 animate-pulse",
+            "absolute w-2 h-2 bg-primary/30 rounded-full animate-float",
+            // 移除 opacity-0，使元素初始可见
           )}
           style={{
             left: `${Math.random() * 100}%`,
@@ -86,15 +86,15 @@ export function Hero() {
       {/* 背景装饰 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-primary/15 rounded-full blur-3xl animate-pulse"
           style={{ animationDuration: "4s" }}
         />
         <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl animate-pulse"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/15 rounded-full blur-3xl animate-pulse"
           style={{ animationDuration: "5s", animationDelay: "2s" }}
         />
         <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/3 rounded-full blur-3xl animate-pulse"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse"
           style={{ animationDuration: "6s", animationDelay: "1s" }}
         />
       </div>

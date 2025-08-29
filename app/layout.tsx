@@ -11,11 +11,15 @@ import cn from "clsx";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap", // 添加这一行
+  preload: true, // 显式启用预加载
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap", // 添加这一行
+  preload: true, // 显式启用预加载
 });
 
 export const metadata: Metadata = {
@@ -76,13 +80,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <head>
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics
-            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
-          />
-        )}
-      </head>
+      <head />
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -90,6 +88,11 @@ export default function RootLayout({
           geistMono.variable,
         )}
       >
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics
+            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+          />
+        )}
         <a href="#main-content" className="skip-link">
           跳转到主要内容
         </a>

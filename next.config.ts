@@ -43,13 +43,14 @@ const nextConfig: NextConfig = {
       "canvas-confetti",
       "@mdx-js/react",
     ],
-    // 启用 Turbo 模式提升构建速度
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*",
-        },
+  },
+
+  // 将 turbo 配置从 experimental 移到顶层的 turbopack
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*",
       },
     },
   },
@@ -95,9 +96,6 @@ const nextConfig: NextConfig = {
     // 移除 console.log
     removeConsole: process.env.NODE_ENV === "production",
   },
-
-  // 构建优化
-  swcMinify: true,
 
   // 静态资源优化
   assetPrefix: process.env.NODE_ENV === "production" ? "" : undefined,

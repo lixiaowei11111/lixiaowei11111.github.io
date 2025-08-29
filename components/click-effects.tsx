@@ -8,7 +8,10 @@ export function ClickEffects() {
   const rippleContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log("ClickEffects组件已挂载");
+
     const handleClick = (e: MouseEvent) => {
+      console.log("点击事件触发", e.clientX, e.clientY);
       const target = e.target as HTMLElement;
 
       // 创建水波纹效果
@@ -16,17 +19,24 @@ export function ClickEffects() {
 
       // 特殊元素的庆祝效果
       if (target.closest('[data-confetti="true"]')) {
+        console.log("触发彩带效果");
         triggerConfetti(e.clientX, e.clientY);
       }
 
       // 按钮点击的粒子效果
       if (target.closest('button, [role="button"]')) {
+        console.log("触发按钮粒子效果");
         createParticleEffect(e.clientX, e.clientY);
       }
     };
 
     const createRipple = (x: number, y: number) => {
-      if (!rippleContainer.current) return;
+      if (!rippleContainer.current) {
+        console.error("rippleContainer ref未正确初始化");
+        return;
+      }
+
+      console.log("创建水波纹效果", x, y);
 
       const ripple = document.createElement("div");
       ripple.className =
@@ -47,6 +57,7 @@ export function ClickEffects() {
         ease: "power2.out",
         onComplete: () => {
           ripple.remove();
+          console.log("水波纹动画结束并已移除");
         },
       });
     };
@@ -84,21 +95,28 @@ export function ClickEffects() {
     };
 
     const triggerConfetti = (x: number, y: number) => {
-      confetti({
-        particleCount: 50, // 减少彩屑数量
-        spread: 50, // 减少扩散范围
-        origin: {
-          x: x / window.innerWidth,
-          y: y / window.innerHeight,
-        },
-        colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
-      });
+      try {
+        confetti({
+          particleCount: 50, // 减少彩屑数量
+          spread: 50, // 减少扩散范围
+          origin: {
+            x: x / window.innerWidth,
+            y: y / window.innerHeight,
+          },
+          colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
+        });
+        console.log("彩带效果已触发");
+      } catch (error) {
+        console.error("彩带效果触发失败:", error);
+      }
     };
 
     document.addEventListener("click", handleClick);
+    console.log("点击事件监听器已添加");
 
     return () => {
       document.removeEventListener("click", handleClick);
+      console.log("点击事件监听器已移除");
     };
   }, []);
 
