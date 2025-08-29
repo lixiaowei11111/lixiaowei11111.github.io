@@ -142,6 +142,25 @@
 }
 
 @layer utilities {
+  /* 修复 Lighthouse 警告：明确指定 h1 在容器元素内的字体大小 */
+  /* 为所有在语义容器内的 h1 标签提供默认字体大小，避免浏览器警告 */
+  section h1,
+  article h1,
+  aside h1,
+  nav h1 {
+    font-size: 2rem; /* 32px - 提供默认字体大小 */
+    line-height: 1.2;
+  }
+
+  /* 确保已有 Tailwind 类的元素优先级更高 */
+  section h1[class*="text-"],
+  article h1[class*="text-"],
+  aside h1[class*="text-"],
+  nav h1[class*="text-"] {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
   /* 自定义动画类 - 优化为更平缓的动画 */
   .animate-float {
     animation: float 8s ease-in-out infinite; /* 增加持续时间 */
@@ -219,6 +238,39 @@
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
+  }
+
+  /* 无障碍访问辅助类 */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* 跳转到主要内容的链接 */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    padding: 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 9999;
+    transform: translateY(-100%);
+    transition: transform 0.3s;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
   }
 }
 

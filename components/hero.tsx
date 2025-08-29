@@ -182,8 +182,10 @@ export function Hero() {
               className="animate-bounce"
               onClick={scrollToContent}
               strength={0.2}
+              aria-label="滚动到内容区域"
             >
               <ArrowDown className="w-5 h-5" />
+              <span className="sr-only">滚动到内容区域</span>
             </MagneticButton>
           </div>
         </AnimatedElement>

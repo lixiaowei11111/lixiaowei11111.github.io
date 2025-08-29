@@ -83,6 +83,8 @@ export function ScrollProgress() {
           opacity: isVisible ? 1 : 0,
           pointerEvents: isVisible ? "auto" : "none",
         }}
+        aria-label="回到顶部"
+        title="回到顶部"
       >
         {/* 环形进度指示器 */}
         <div
@@ -96,6 +98,7 @@ export function ScrollProgress() {
         </div>
 
         <ArrowUp className="w-4 h-4 relative z-10" />
+        <span className="sr-only">回到顶部</span>
       </Button>
     </>
   );

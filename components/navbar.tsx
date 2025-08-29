@@ -93,6 +93,7 @@ export function Navbar() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:scale-110 transform duration-200"
+                  aria-label="GitHub"
                 >
                   <Github className="h-4 w-4" />
                   <span className="sr-only">GitHub</span>
@@ -107,6 +108,7 @@ export function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:scale-110 transform duration-200"
+                    aria-label="Twitter"
                   >
                     <Twitter className="h-4 w-4" />
                     <span className="sr-only">Twitter</span>
@@ -122,6 +124,7 @@ export function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:scale-110 transform duration-200"
+                    aria-label="LinkedIn"
                   >
                     <Linkedin className="h-4 w-4" />
                     <span className="sr-only">LinkedIn</span>
@@ -137,9 +140,12 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              aria-expanded="false"
+              aria-expanded={isOpen}
+              aria-label={isOpen ? "关闭菜单" : "打开主菜单"}
             >
-              <span className="sr-only">打开主菜单</span>
+              <span className="sr-only">
+                {isOpen ? "关闭菜单" : "打开主菜单"}
+              </span>
               {isOpen ? (
                 <X className="h-6 w-6" aria-hidden="true" />
               ) : (
@@ -178,8 +184,10 @@ export function Navbar() {
                 href={siteConfig.social.github}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="GitHub"
               >
                 <Github className="h-4 w-4" />
+                <span className="sr-only">GitHub</span>
               </a>
             </Button>
             {siteConfig.social.twitter && (
@@ -188,8 +196,10 @@ export function Navbar() {
                   href={siteConfig.social.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Twitter"
                 >
                   <Twitter className="h-4 w-4" />
+                  <span className="sr-only">Twitter</span>
                 </a>
               </Button>
             )}
@@ -199,8 +209,10 @@ export function Navbar() {
                   href={siteConfig.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="LinkedIn"
                 >
                   <Linkedin className="h-4 w-4" />
+                  <span className="sr-only">LinkedIn</span>
                 </a>
               </Button>
             )}
