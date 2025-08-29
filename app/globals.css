@@ -141,26 +141,25 @@
   }
 }
 
-@layer utilities {
-  /* 修复 Lighthouse 警告：明确指定 h1 在容器元素内的字体大小 */
-  /* 为所有在语义容器内的 h1 标签提供默认字体大小，避免浏览器警告 */
+@layer base {
+  /* 
+   * 修复 Lighthouse 警告：明确指定语义容器内 h1 标签的字体大小
+   * 这确保了所有在 section、article、aside、nav 等容器内的 h1 都有明确的字体大小
+   */
   section h1,
   article h1,
   aside h1,
-  nav h1 {
-    font-size: 2rem; /* 32px - 提供默认字体大小 */
+  nav h1,
+  main h1,
+  header h1,
+  footer h1 {
+    font-size: 2rem; /* 32px - 基础字体大小 */
     line-height: 1.2;
+    font-weight: 700;
   }
+}
 
-  /* 确保已有 Tailwind 类的元素优先级更高 */
-  section h1[class*="text-"],
-  article h1[class*="text-"],
-  aside h1[class*="text-"],
-  nav h1[class*="text-"] {
-    font-size: inherit;
-    line-height: inherit;
-  }
-
+@layer utilities {
   /* 自定义动画类 - 优化为更平缓的动画 */
   .animate-float {
     animation: float 8s ease-in-out infinite; /* 增加持续时间 */

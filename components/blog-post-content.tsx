@@ -148,7 +148,7 @@ export function BlogPostContent({
 
           {/* 文章内容 */}
           <Card className="p-8 border-2">
-            <div
+            <article
               className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-m-20 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-primary prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground"
               // biome-ignore lint/security/noDangerouslySetInnerHtml: MDX content is pre-processed and safe
               dangerouslySetInnerHTML={{

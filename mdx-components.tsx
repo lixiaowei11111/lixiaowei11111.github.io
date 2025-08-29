@@ -10,6 +10,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     }: HTMLAttributes<HTMLHeadingElement> & { children: ReactNode }) => (
       <h1
         className="scroll-m-20 text-4xl font-bold tracking-tight mb-6"
+        style={{ fontSize: "2.25rem", lineHeight: "2.5rem" }}
         {...props}
       >
         {children}

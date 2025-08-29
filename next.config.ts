@@ -33,9 +33,74 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   // Configure pageExtensions to include md and mdx
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+
+  // 性能优化配置
   experimental: {
-    optimizePackageImports: ["lucide-react", "@radix-ui/react-avatar"],
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-avatar",
+      "gsap",
+      "canvas-confetti",
+      "@mdx-js/react",
+    ],
+    // 启用 Turbo 模式提升构建速度
+    turbo: {
+      rules: {
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*",
+        },
+      },
+    },
   },
+
+  // Webpack 优化
+  webpack: (config, { isServer }) => {
+    // 代码分割优化
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: "all",
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "vendors",
+            chunks: "all",
+            priority: 10,
+          },
+          gsap: {
+            test: /[\\/]node_modules[\\/]gsap[\\/]/,
+            name: "gsap",
+            chunks: "all",
+            priority: 20,
+          },
+          common: {
+            name: "common",
+            minChunks: 2,
+            chunks: "all",
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+
+    // 压缩优化
+    config.optimization.minimize = true;
+
+    return config;
+  },
+
+  // 编译器优化
+  compiler: {
+    // 移除 console.log
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
+  // 构建优化
+  swcMinify: true,
+
+  // 静态资源优化
+  assetPrefix: process.env.NODE_ENV === "production" ? "" : undefined,
 };
 
 // Merge MDX config with Next.js config
