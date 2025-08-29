@@ -27,6 +27,9 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
   },
+  verification: {
+    google: "jZIW_JJilnDkihlbOvJH_2viVeLvwWXCACY_agwifhU",
+  },
   description: siteConfig.description,
   keywords: [
     "Next.js",
