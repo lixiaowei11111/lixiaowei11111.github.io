@@ -1,4 +1,4 @@
-import { Github, Heart, Linkedin, Twitter } from "lucide-react";
+import { Github, Heart, Twitter } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -43,19 +43,6 @@ export function Footer() {
                     >
                       <Twitter className="h-4 w-4" />
                       <span className="sr-only">Twitter</span>
-                    </a>
-                  </Button>
-                )}
-                {siteConfig.social.linkedin && (
-                  <Button variant="ghost" size="icon" asChild>
-                    <a
-                      href={siteConfig.social.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:scale-110 transition-transform"
-                    >
-                      <Linkedin className="h-4 w-4" />
-                      <span className="sr-only">LinkedIn</span>
                     </a>
                   </Button>
                 )}
@@ -141,26 +128,6 @@ export function Footer() {
                 Made with <Heart className="h-3 w-3 mx-1 text-red-500" /> and
                 Next.js
               </span>
-            </div>
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <Link
-                href="/privacy"
-                className="hover:text-primary transition-colors"
-              >
-                隐私政策
-              </Link>
-              <Link
-                href="/terms"
-                className="hover:text-primary transition-colors"
-              >
-                使用条款
-              </Link>
-              <a
-                href="/sitemap.xml"
-                className="hover:text-primary transition-colors"
-              >
-                网站地图
-              </a>
             </div>
           </div>
         </AnimatedElement>

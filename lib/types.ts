@@ -23,7 +23,6 @@ export interface Author {
   social: {
     github?: string;
     twitter?: string;
-    linkedin?: string;
     website?: string;
   };
 }
@@ -60,7 +59,6 @@ export interface SiteConfig {
   social: {
     github: string;
     twitter?: string;
-    linkedin?: string;
   };
 }
 

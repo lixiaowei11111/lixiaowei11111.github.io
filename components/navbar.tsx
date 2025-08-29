@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, Linkedin, Menu, Twitter, X } from "lucide-react";
+import { Github, Menu, Twitter, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -116,22 +116,6 @@ export function Navbar() {
                 </Button>
               </AnimatedElement>
             )}
-            {siteConfig.social.linkedin && (
-              <AnimatedElement animation="fadeInRight" delay={0.4}>
-                <Button variant="ghost" size="icon" asChild>
-                  <a
-                    href={siteConfig.social.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:scale-110 transform duration-200"
-                    aria-label="LinkedIn"
-                  >
-                    <Linkedin className="h-4 w-4" />
-                    <span className="sr-only">LinkedIn</span>
-                  </a>
-                </Button>
-              </AnimatedElement>
-            )}
           </div>
 
           {/* Mobile menu button */}
@@ -200,19 +184,6 @@ export function Navbar() {
                 >
                   <Twitter className="h-4 w-4" />
                   <span className="sr-only">Twitter</span>
-                </a>
-              </Button>
-            )}
-            {siteConfig.social.linkedin && (
-              <Button variant="ghost" size="icon" asChild>
-                <a
-                  href={siteConfig.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="h-4 w-4" />
-                  <span className="sr-only">LinkedIn</span>
                 </a>
               </Button>
             )}

@@ -10,11 +10,10 @@ export const siteConfig: SiteConfig = {
     name: "LXW",
     bio: "全栈开发工程师，专注于现代 Web 技术栈，热爱开源和技术分享。",
     avatar: "/images/avatar.jpg",
-    email: "your-email@example.com",
+    email: "lxw.tech.dev@gmail.com",
     social: {
       github: "https://github.com/lixiaowei11111",
-      twitter: "https://twitter.com/yourhandle",
-      linkedin: "https://linkedin.com/in/yourprofile",
+      twitter: "https://x.com/lxw_xw",
       website: "https://lixiaowei11111.github.io",
     },
   },
@@ -36,10 +35,6 @@ export const siteConfig: SiteConfig = {
       href: "/tags",
     },
     {
-      label: "特效演示",
-      href: "/effects",
-    },
-    {
       label: "关于",
       href: "/about",
     },
@@ -50,8 +45,7 @@ export const siteConfig: SiteConfig = {
   ],
   social: {
     github: "https://github.com/lixiaowei11111",
-    twitter: "https://twitter.com/yourhandle",
-    linkedin: "https://linkedin.com/in/yourprofile",
+    twitter: "https://x.com/lxw_xw",
   },
 };
 
