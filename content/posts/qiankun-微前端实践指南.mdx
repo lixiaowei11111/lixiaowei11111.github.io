@@ -1,0 +1,992 @@
+---
+title: "qiankun 微前端实践指南"
+excerpt: "深入探讨 qiankun 微前端架构的完整实践，包括项目搭建、应用间通信、样式隔离、部署策略以及常见问题解决方案。"
+author: "LXW"
+publishedAt: "2024-12-19"
+updatedAt: "2024-12-19"
+tags: ["微前端", "qiankun", "Architecture", "React", "Vue"]
+category: "frontend"
+featured: true
+coverImage: "/images/posts/covers/qiankun-guide.jpg"
+---
+
+# qiankun 微前端实践指南
+
+本项目是一个基于 qiankun 的微前端架构实践示例，展示了如何构建一个完整的微前端应用系统。qiankun 是一个基于 single-spa 的微前端实现库，旨在帮助大型前端应用进行模块化拆分和治理。
+
+项目通过一个主应用（main）和多个子应用（flow、backend、form、hash）组成，实现了模块间的独立开发、部署和运行，同时保持了整体应用的一致性体验。
+
+## 项目架构设计
+
+### 整体架构概览
+
+项目采用了典型的微前端架构，主要包含以下几个部分：
+
+1. **主应用（Main）**：作为基座应用，负责子应用的注册、加载和卸载，提供公共导航和基础设施。
+2. **子应用**：独立开发、构建和部署的微前端应用，包括：
+   - **flow**: 基于 React 开发
+   - **backend**: 基于 Vue 开发
+   - **form**: 基于 React 开发
+   - **hash**: 基于 Vue 开发
+
+### 目录结构设计
+
+项目采用了 monorepo 工作区结构，使用 pnpm workspace 进行管理：
+
+```
+micro_qiankun/
+├── app/                    # 所有应用目录
+│   ├── main/               # 主应用（基座）
+│   ├── flow/               # React 子应用
+│   ├── backend/            # Vue 子应用
+│   ├── form/               # React 子应用
+│   └── hash/               # Vue 子应用
+├── nginx/                  # Nginx 配置
+├── package.json            # 根项目配置
+└── pnpm-workspace.yaml     # pnpm 工作区配置
+```
+
+> 💡 **提示**: 如果仓库体积膨胀，也可以采用 git submodule 管理
+
+### 技术栈选择
+
+- **构建工具**：Rspack（替代 Webpack）
+- **包管理**：pnpm（支持 workspace）
+- **微前端框架**：qiankun
+- **前端框架**：React、Vue
+- **状态管理**：zustand
+- **部署工具**：PM2、Nginx
+- **开发语言**：TypeScript
+
+## 微前端实现核心
+
+### 主应用注册子应用
+
+主应用通过 qiankun 的 `registerMicroApps` 方法注册子应用：
+
+```typescript
+import { registerMicroApps, start } from 'qiankun'
+
+registerMicroApps([
+  {
+    name: 'backend',
+    entry: isDev ? '//localhost:23456' : '/app-backend/',
+    container: '#backend',
+    activeRule: '/backend',
+    props: {
+      mainHistory: history,
+      navigateToOtherApp: mainNavigate,
+      getGlobalState: () => store.getState(),
+    },
+  },
+  {
+    name: 'flow',
+    entry: isDev ? '//localhost:23457' : '/app-flow/',
+    container: '#flow',
+    activeRule: '/flow',
+    props: {
+      mainHistory: history,
+      navigateToOtherApp: mainNavigate,
+      getGlobalState: () => store.getState(),
+    },
+  },
+  // 其他子应用配置...
+])
+
+// 启动 qiankun
+start()
+```
+
+主应用配置中的关键参数：
+- `name`: 子应用唯一标识
+- `entry`: 子应用入口（开发环境和生产环境配置不同）
+- `container`: 子应用挂载的 DOM 容器
+- `activeRule`: 子应用激活的路由规则
+- `props`: 传递给子应用的数据和方法
+
+### 子应用生命周期实现
+
+子应用需要导出 qiankun 所需的生命周期钩子：`bootstrap`、`mount` 和 `unmount`。以 flow 子应用为例：
+
+```typescript
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
+
+let root: any = null
+
+export const bootstrap = async () => {
+  console.log('[debug] react-flow-app bootstrap')
+}
+
+export const mount = async (props: QiankunMountProps) => {
+  console.log('[debug] react-flow-app mounted.props from main framework', props)
+  
+  const { container } = props
+  const containerElement = container
+    ? container.querySelector('#root')
+    : document.querySelector('#root')
+
+  root = createRoot(containerElement)
+  root.render(
+    <BrowserRouter basename={window.__POWERED_BY_QIANKUN__ ? '/flow' : '/'}>
+      <App {...props} />
+    </BrowserRouter>
+  )
+}
+
+export const unmount = async () => {
+  console.log('[debug] react-flow-app unmounting')
+  root?.unmount()
+  root = null
+}
+
+// 独立运行时的挂载
+if (!window.__POWERED_BY_QIANKUN__) {
+  mount({})
+}
+```
+
+## 应用间通信机制
+
+本项目实现了多种应用间通信机制，为微前端架构提供了灵活的数据交互方案。
+
+### 基于 Props 的通信
+
+主应用通过 qiankun 注册时的 props 向子应用传递数据和方法：
+
+```typescript
+// 主应用中注册子应用时传递 props
+{
+  name: 'flow',
+  // 其他配置...
+  props: {
+    navigateToOtherApp: mainNavigate,
+    mainHistory: history,
+    getGlobalState: () => store.getState(),
+    bus,
+    eventList: EVENT_LIST,
+  },
+}
+```
+
+子应用在生命周期函数中接收并使用这些 props：
+
+```typescript
+export const mount = async (props: QiankunMountProps) => {
+  const { container, navigateToOtherApp, mainHistory } = props
+  
+  root.render(
+    <AppContext.Provider value={{ navigateToOtherApp, mainHistory }}>
+      <BrowserRouter basename={window.__POWERED_BY_QIANKUN__ ? '/flow' : '/'}>
+        <Router />
+      </BrowserRouter>
+    </AppContext.Provider>
+  )
+}
+```
+
+子应用组件中通过 Context API 使用这些共享方法：
+
+```tsx
+// 子应用中的组件
+function NavigationComponent() {
+  const { navigateToOtherApp, mainHistory } = useAppContext()
+  
+  const handleToOtherMicroApp = () => {
+    // 使用主应用提供的导航方法进行跨应用导航
+    navigateToOtherApp?.('/backend')
+    // 或者直接使用主应用的 history 对象
+    // mainHistory?.push('/backend')
+  }
+  
+  return (
+    <div className="flex gap-4">
+      <button 
+        onClick={handleToOtherMicroApp}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        跳转到 backend 微应用
+      </button>
+    </div>
+  )
+}
+```
+
+### 事件总线通信机制
+
+项目实现了一个自定义的事件总线机制，用于应用间的发布-订阅模式通信：
+
+```typescript
+// 事件总线实现 (app/main/src/shared/eventBus.ts)
+export const EVENT_LIST = {
+  ROUTE_NAVIGATE: Symbol.for('MAIN.ROUTE_NAVIGATE'),
+  USER_LOGIN: Symbol.for('MAIN.USER_LOGIN'),
+  THEME_CHANGE: Symbol.for('MAIN.THEME_CHANGE'),
+} as const
+
+type EventType = symbol
+type EventHandler<T = unknown> = (data?: T) => void
+
+class EventBus {
+  #topics = new Map<EventType, EventHandler[]>()
+
+  subscribe<T>(event: EventType, callback: EventHandler<T>) {
+    const handlers = this.#topics.get(event) || []
+    this.#topics.set(event, [...handlers, callback as EventHandler<unknown>])
+  }
+
+  publish<T>(event: EventType, data?: T) {
+    const handlers = this.#topics.get(event)
+    for (const handler of handlers || []) {
+      if (typeof handler !== 'function') return
+
+      try {
+        data !== undefined ? handler(data as T) : handler()
+      } catch (error) {
+        console.error(`[EventBus] ${event.toString()}`, error)
+      }
+    }
+  }
+
+  unsubscribe(event: EventType, callback: EventHandler) {
+    const handlers = this.#topics.get(event)
+    if (!handlers) return
+
+    this.#topics.set(
+      event,
+      handlers.filter((fn) => fn !== callback),
+    )
+  }
+
+  clear(event: EventType) {
+    this.#topics.delete(event)
+  }
+}
+
+export default new EventBus()
+```
+
+通信示例：
+
+```typescript
+// 主应用传递事件总线
+props: {
+  bus,
+  eventList: EVENT_LIST,
+}
+
+// 子应用订阅事件
+useEffect(() => {
+  const handleRouteChange = (path: string) => {
+    console.log(`Route changed to: ${path}`)
+    // 处理路由变更逻辑
+  }
+  
+  const handleUserLogin = (user: User) => {
+    console.log('User logged in:', user)
+    // 处理用户登录状态
+  }
+  
+  props.bus?.subscribe(props.eventList.ROUTE_NAVIGATE, handleRouteChange)
+  props.bus?.subscribe(props.eventList.USER_LOGIN, handleUserLogin)
+  
+  return () => {
+    props.bus?.unsubscribe(props.eventList.ROUTE_NAVIGATE, handleRouteChange)
+    props.bus?.unsubscribe(props.eventList.USER_LOGIN, handleUserLogin)
+  }
+}, [props.bus, props.eventList])
+
+// 子应用发布事件
+const notifyRouteChange = (path: string) => {
+  props.bus?.publish(props.eventList.ROUTE_NAVIGATE, path)
+}
+
+const notifyUserLogin = (user: User) => {
+  props.bus?.publish(props.eventList.USER_LOGIN, user)
+}
+```
+
+### 共享全局状态
+
+项目使用 zustand 实现全局状态管理，并通过 props 传递给子应用：
+
+```typescript
+// 主应用全局状态定义 (app/main/src/store/globalStore.ts)
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+
+export interface GlobalState {
+  microAppsLoading: MicroAppsLoading
+  count: number
+  user: User | null
+  theme: 'light' | 'dark'
+  setCount: (newCounter: number) => void
+  setUser: (user: User | null) => void
+  setTheme: (theme: 'light' | 'dark') => void
+}
+
+export const useGlobalStore = create<GlobalState>()(
+  immer((set) => ({
+    microAppsLoading: {},
+    count: 0,
+    user: null,
+    theme: 'light',
+    setCount: (newCounter: number) => set({ count: newCounter }),
+    setUser: (user: User | null) => set({ user }),
+    setTheme: (theme: 'light' | 'dark') => set({ theme }),
+  })),
+)
+
+// 子应用获取和使用全局状态
+const SubAppComponent = (props) => {
+  const globalState = props.getGlobalState()
+  
+  const handleIncrement = () => {
+    // 通过事件总线通知主应用更新状态
+    props.bus?.publish(props.eventList.UPDATE_COUNT, globalState.count + 1)
+  }
+  
+  return (
+    <div className="p-4">
+      <h2>当前计数: {globalState.count}</h2>
+      <button 
+        onClick={handleIncrement}
+        className="px-4 py-2 bg-green-500 text-white rounded"
+      >
+        增加计数
+      </button>
+      <p>当前主题: {globalState.theme}</p>
+      {globalState.user && <p>用户: {globalState.user.name}</p>}
+    </div>
+  )
+}
+```
+
+### 通信机制对比与选择
+
+| 通信方式 | 适用场景 | 优点 | 缺点 |
+|---------|---------|------|------|
+| Props 传递 | 父子关系明确的应用间 | 简单直接，类似组件 props | 仅适用于主子应用间通信 |
+| 事件总线 | 任意应用间的松散通信 | 完全解耦，灵活性高 | 事件管理复杂，调试困难 |
+| 全局状态共享 | 需要共享数据的场景 | 统一状态管理，便于追踪 | 可能造成不必要的重渲染 |
+
+**最佳实践建议**：
+- 主子应用间简单通信：使用 Props 传递
+- 子应用间通信：使用事件总线
+- 全局共享数据：使用共享状态管理
+
+## 样式隔离与沙箱机制
+
+### 样式隔离实现
+
+项目使用 qiankun 提供的严格样式隔离机制，防止子应用样式相互影响：
+
+```typescript
+import { start } from 'qiankun'
+
+start({
+  sandbox: {
+    strictStyleIsolation: true, // 严格样式隔离，创建 Shadow DOM
+    // 或者使用实验性的作用域隔离
+    // experimentalStyleIsolation: true
+  },
+})
+```
+
+qiankun 提供了多种样式隔离方案：
+
+1. **动态样式隔离（默认）**：子应用加载时注入样式，卸载时移除
+2. **Shadow DOM 沙箱（严格隔离）**：使用浏览器原生 Shadow DOM 实现隔离
+3. **作用域沙箱（实验性）**：为子应用添加唯一随机属性，重写 CSS 选择器
+
+```css
+/* 子应用样式示例 */
+.micro-app-container {
+  /* 使用 CSS 模块化或者 CSS-in-JS 来避免样式冲突 */
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+/* 如果使用作用域隔离，qiankun 会自动添加前缀 */
+.micro-app-container[data-qiankun-microapp="flow"] {
+  /* 样式只会应用到 flow 子应用 */
+}
+```
+
+**注意**: 在 qiankun 3.0 中，`strictStyleIsolation` 将被移除，转而使用 `experimentalStyleIsolation`（添加前缀类名的方式）进行样式隔离。
+
+### JS 沙箱机制
+
+qiankun 提供了三种 JS 沙箱机制：
+
+1. **SnapshotSandbox**：通过记录和恢复 window 对象快照实现隔离
+2. **LegacySandbox**：通过 Proxy 代理 window 对象，跟踪修改
+3. **ProxySandbox**：为每个子应用创建独立的虚拟 window 代理
+
+```typescript
+// qiankun 自动选择合适的沙箱机制
+start({
+  sandbox: {
+    // 可以手动指定沙箱类型
+    loose: false, // 是否使用宽松沙箱模式
+  },
+})
+```
+
+默认情况下，qiankun 根据浏览器支持和应用配置自动选择合适的沙箱机制。
+
+## 前端应用拆分策略
+
+### 按业务领域拆分
+
+各子应用按照业务功能进行拆分，各自独立维护自己的路由、状态和组件：
+
+```typescript
+// 业务拆分示例
+const microApps = [
+  {
+    name: 'user-management',    // 用户管理模块
+    activeRule: '/users',
+    technologies: ['React', 'TypeScript', 'Ant Design']
+  },
+  {
+    name: 'order-system',       // 订单系统模块
+    activeRule: '/orders',
+    technologies: ['Vue', 'TypeScript', 'Element Plus']
+  },
+  {
+    name: 'analytics-dashboard', // 数据分析模块
+    activeRule: '/analytics',
+    technologies: ['React', 'D3.js', 'Chart.js']
+  },
+  {
+    name: 'content-management',  // 内容管理模块
+    activeRule: '/content',
+    technologies: ['Vue', 'Quill', 'TinyMCE']
+  }
+]
+```
+
+### 技术栈独立
+
+子应用可以使用不同的前端框架（React、Vue），实现技术栈解耦：
+
+```json
+// React 子应用的 package.json
+{
+  "name": "@micro/flow-app",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "antd": "^5.0.0"
+  }
+}
+
+// Vue 子应用的 package.json
+{
+  "name": "@micro/backend-app",
+  "dependencies": {
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0",
+    "element-plus": "^2.0.0",
+    "pinia": "^2.0.0"
+  }
+}
+```
+
+### 独立开发与构建
+
+每个应用有自己的开发和构建命令，支持独立开发、测试和部署：
+
+```json
+{
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "dev:main": "pnpm --filter main dev",
+    "dev:flow": "pnpm --filter flow dev:micro",
+    "dev:backend": "pnpm --filter backend dev:micro",
+    "build": "pnpm --recursive run build",
+    "build:main": "pnpm --filter main build",
+    "build:flow": "pnpm --filter flow build:micro",
+    "build:backend": "pnpm --filter backend build:micro"
+  }
+}
+```
+
+## 部署方案详解
+
+### Nginx 配置策略
+
+Nginx 用于路由分发，将请求转发到对应的子应用服务：
+
+```nginx
+# nginx.conf
+upstream main {
+    server 127.0.0.1:3000;
+}
+
+upstream flow {
+    server 127.0.0.1:3001;
+}
+
+upstream backend {
+    server 127.0.0.1:3002;
+}
+
+server {
+    listen 80;
+    server_name micro.app.example.com;
+
+    # 主应用路由
+    location / {
+        proxy_pass http://main;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        
+        # 支持 WebSocket（如果需要热重载）
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    
+    # flow 子应用静态资源
+    location /app-flow/ {
+        proxy_pass http://flow/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    
+    # backend 子应用静态资源
+    location /app-backend/ {
+        proxy_pass http://backend/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # 静态资源缓存策略
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri @proxy;
+    }
+
+    location @proxy {
+        proxy_pass http://main;
+    }
+}
+```
+
+### 静态资源部署
+
+项目静态资源部署策略：
+
+```typescript
+// 主应用 webpack/rspack 配置
+export default {
+  output: {
+    publicPath: '/', // 或 CDN 绝对路径
+  },
+  // 其他配置...
+}
+
+// 子应用配置
+export default {
+  output: {
+    publicPath: window.__POWERED_BY_QIANKUN__ ? '/app-flow/' : '/',
+    library: `flow-[name]`,
+    libraryTarget: 'umd',
+    globalObject: 'window',
+  },
+  // 其他配置...
+}
+```
+
+### PM2 进程管理
+
+使用 PM2 管理各个应用的 Node 服务进程：
+
+```javascript
+// ecosystem.config.cjs
+module.exports = {
+  apps: [
+    {
+      name: "micro-main",
+      script: "./app/main/dist/server.js",
+      instances: 2,
+      exec_mode: "cluster",
+      env: {
+        NODE_ENV: "production",
+        PORT: 3000
+      },
+      error_file: "./logs/main-error.log",
+      out_file: "./logs/main-out.log",
+      log_file: "./logs/main-combined.log"
+    },
+    {
+      name: "micro-flow",
+      script: "./app/flow/dist/server.js",
+      instances: 1,
+      env: {
+        NODE_ENV: "production",
+        PORT: 3001
+      },
+      error_file: "./logs/flow-error.log",
+      out_file: "./logs/flow-out.log"
+    },
+    {
+      name: "micro-backend",
+      script: "./app/backend/dist/server.js",
+      instances: 1,
+      env: {
+        NODE_ENV: "production",
+        PORT: 3002
+      },
+      error_file: "./logs/backend-error.log",
+      out_file: "./logs/backend-out.log"
+    }
+  ]
+}
+```
+
+## 常见问题与解决方案
+
+### 子应用间跳转的时序问题
+
+#### 问题描述
+
+在子应用 flow 中使用 `history.pushState` 跳转到另一个子应用 backend 时，会出现以下错误：
+
+```
+[qiankun]: Target container with #backend not existed while backend loading!
+```
+
+这是因为子应用的资源已经加载完成，但对应的容器节点还未挂载到页面上。
+
+#### 问题分析
+
+详细分析的时序问题：
+
+1. 开启 prefetch 时，qiankun 会预加载 backend 子应用的资源
+2. 当在 flow 子应用中调用 `history.pushState` 跳转到 `/backend` 时
+3. qiankun 监听到 URL 变化，立即尝试加载并挂载 backend 应用
+4. 但此时主应用的路由系统（React Router）还没有响应 URL 变化
+5. 导致 backend 子应用的容器元素 `#backend` 尚未渲染，挂载失败
+
+#### 解决方案
+
+有以下几种解决方案：
+
+**方案一：关闭预加载（prefetch: false）**
+```typescript
+start({
+  prefetch: false, // 关闭预加载
+  // 其他配置...
+})
+```
+
+**方案二：使用主应用提供的导航方法（推荐）**
+```typescript
+// 子应用中使用主应用提供的方法进行导航
+const NavigationButton = () => {
+  const { navigateToOtherApp, mainHistory } = useAppContext()
+  
+  const handleToOtherMicroApp = () => {
+    // 推荐方式：使用主应用提供的导航函数
+    navigateToOtherApp?.('/backend')
+    
+    // 或者使用主应用的 history 对象
+    // mainHistory?.push('/backend')
+  }
+  
+  return (
+    <button onClick={handleToOtherMicroApp}>
+      跳转到 backend 微应用
+    </button>
+  )
+}
+```
+
+**方案三：添加延迟处理**
+```typescript
+const handleNavigation = async (path: string) => {
+  // 先更新 URL
+  window.history.pushState(null, '', path)
+  
+  // 等待一个微任务，让主应用路由有时间响应
+  await new Promise(resolve => setTimeout(resolve, 0))
+  
+  // 触发 popstate 事件，让 qiankun 重新检查路由
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
+```
+
+**最佳实践**：子应用之间的跳转应该采用主应用提供的导航函数，这是微前端架构中的推荐做法，可确保路由控制的一致性和稳定性。
+
+### 主应用 history 模式接入 hash 模式的子应用
+
+#### 问题描述
+
+在主应用使用 history 路由模式，子应用使用 hash 路由模式时，会出现路由匹配和地址栏显示的问题。
+
+#### 解决方案
+
+Vue 子应用需要在创建路由时正确配置 basename：
+
+```typescript
+// Vue3 子应用路由配置
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+const history = createWebHashHistory(
+  window.__POWERED_BY_QIANKUN__ ? '/hash/#' : '/'
+)
+
+const router = createRouter({
+  history,
+  routes: [
+    {
+      path: '/',
+      name: 'Home',
+      component: () => import('@/views/Home.vue')
+    },
+    {
+      path: '/about',
+      name: 'About',
+      component: () => import('@/views/About.vue')
+    }
+  ],
+})
+
+export default router
+```
+
+```typescript
+// 主应用正常配置
+registerMicroApps([
+  {
+    name: 'hash',
+    entry: isDev ? '//localhost:23458' : '/app-hash/',
+    container: '#hash',
+    activeRule: '/hash', // 主应用的路由规则
+    props: {
+      // 传递必要的 props
+    },
+  },
+])
+```
+
+最终页面 URL 会显示为：`http://xxx.com/hash/#/home`
+
+#### 路由模式组合建议
+
+| 组合模式 | 可行性 | 优点 | 缺点 |
+|---------|-------|------|------|
+| Hash 主 + History 子 | ❌ | - | URL 冲突、刷新 404 |
+| History 主 + Hash 子 | ✅ | 路径清晰、兼容旧项目 | 需子应用适配 |
+| History 主 + History 子 | ✅ | 最佳实践、SEO 友好 | 需服务端配置 |
+| Hash 主 + Hash 子 | ✅ | 无需服务端配置 | URL 冗余 |
+
+推荐使用 **History 主 + History 子** 或 **Hash 主 + Hash 子** 的组合，避免混合模式带来的风险。
+
+### publicPath 配置问题
+
+#### 问题描述
+
+主应用的 publicPath 如果配置不正确，会导致在浏览器直接输入 URL 访问子应用页面失败。
+
+#### 解决方案
+
+```javascript
+// 主应用 webpack/rspack 配置
+module.exports = {
+  output: {
+    publicPath: '/',  // 必须是根目录或 CDN 绝对路径
+    // 不能使用相对路径如 './'
+  },
+  // 其他配置...
+}
+
+// 子应用配置
+module.exports = {
+  output: {
+    publicPath: window.__POWERED_BY_QIANKUN__ ? '/app-flow/' : '/',
+    library: `flow-[name]`,
+    libraryTarget: 'umd',
+    globalObject: 'window',
+  },
+  // 其他配置...
+}
+```
+
+**关键点**：
+- 主应用的 publicPath 必须设置为根目录 `/` 或 CDN 的绝对路径
+- 不能使用相对路径（如 `./`），否则会导致子应用 URL 的访问问题
+- 子应用可以使用各自的 publicPath 配置
+
+### 开发环境跨域问题
+
+#### 问题描述
+
+在开发环境中，主应用和子应用运行在不同端口，会出现跨域问题。
+
+#### 解决方案
+
+```typescript
+// 子应用开发服务器配置
+export default {
+  devServer: {
+    port: 3001,
+    headers: {
+      'Access-Control-Allow-Origin': '*', // 允许跨域
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+    },
+  },
+  // 其他配置...
+}
+
+// 或者在主应用中配置代理
+export default {
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '',
+        },
+      },
+    },
+  },
+}
+```
+
+## 性能优化建议
+
+### 资源预加载策略
+
+```typescript
+// 智能预加载配置
+start({
+  prefetch: 'all', // 预加载所有子应用资源
+  // 或者
+  prefetch: (apps) => {
+    // 自定义预加载逻辑
+    return apps.filter(app => app.name !== 'heavy-app')
+  },
+})
+```
+
+### 代码分割优化
+
+```typescript
+// 子应用中使用懒加载
+const LazyComponent = React.lazy(() => import('./HeavyComponent'))
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyComponent />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+### 缓存策略
+
+```typescript
+// 利用浏览器缓存
+const webpackConfig = {
+  output: {
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].chunk.js',
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+}
+```
+
+## 监控与调试
+
+### 应用状态监控
+
+```typescript
+// 监控子应用加载状态
+import { addGlobalUncaughtErrorHandler } from 'qiankun'
+
+addGlobalUncaughtErrorHandler((event) => {
+  console.error('子应用加载出错:', event)
+  // 发送错误日志到监控系统
+  sendErrorLog({
+    type: 'micro-app-error',
+    message: event.message,
+    stack: event.error?.stack,
+    timestamp: Date.now(),
+  })
+})
+```
+
+### 性能监控
+
+```typescript
+// 监控子应用性能
+const performanceObserver = new PerformanceObserver((list) => {
+  list.getEntries().forEach((entry) => {
+    if (entry.name.includes('micro-app')) {
+      console.log(`子应用 ${entry.name} 加载时间:`, entry.duration)
+    }
+  })
+})
+
+performanceObserver.observe({ entryTypes: ['navigation', 'resource'] })
+```
+
+## 总结与最佳实践
+
+通过 qiankun 微前端框架，项目实现了前端应用的模块化拆分和独立部署，既保证了各团队的开发自由度，又维持了整体应用的一致性体验。
+
+### 核心优势
+
+1. **技术栈无关**：支持 React、Vue 等不同框架共存
+2. **独立开发部署**：各子应用可独立开发、测试、部署
+3. **渐进式升级**：可逐步将老项目改造为微前端架构
+4. **团队协作**：不同团队可并行开发，提高效率
+
+### 最佳实践总结
+
+1. **应用拆分**：按业务领域拆分，避免过度拆分
+2. **通信机制**：优先使用 Props 传递，复杂场景使用事件总线
+3. **样式隔离**：使用严格模式或作用域隔离
+4. **路由设计**：统一使用 History 模式，避免混合路由
+5. **性能优化**：合理配置预加载，使用代码分割
+6. **错误处理**：完善的错误边界和监控机制
+
+### 适用场景
+
+微前端架构特别适合以下场景：
+
+- **大型企业应用**：多团队协作，业务模块复杂
+- **遗留系统改造**：需要渐进式升级老系统
+- **多技术栈并存**：团队使用不同的前端技术栈
+- **独立发布需求**：不同模块需要独立发布上线
+
+通过这种架构，可以显著提高开发效率，降低应用间的耦合度，实现团队间的并行开发和独立部署，最终实现大型前端应用的可持续发展。
+
+---
+
+*微前端不是银弹，但在合适的场景下，它确实能够解决许多大型前端应用面临的问题。选择微前端架构时，请根据团队规模、业务复杂度和技术栈情况做出理性决策。*
