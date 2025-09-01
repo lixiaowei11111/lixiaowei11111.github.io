@@ -4,6 +4,7 @@ import { Github, Menu, Twitter, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -86,6 +87,9 @@ export function Navbar() {
 
           {/* Social Links - Desktop */}
           <div className="hidden md:flex items-center space-x-2">
+            <AnimatedElement animation="fadeInRight" delay={0.1}>
+              <ThemeToggle />
+            </AnimatedElement>
             <AnimatedElement animation="fadeInRight" delay={0.2}>
               <Button variant="ghost" size="icon" asChild>
                 <a
@@ -163,6 +167,7 @@ export function Navbar() {
 
           {/* Mobile Social Links */}
           <div className="flex items-center space-x-2 px-3 py-2">
+            <ThemeToggle />
             <Button variant="ghost" size="icon" asChild>
               <a
                 href={siteConfig.social.github}

@@ -1,7 +1,8 @@
 "use client";
 
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "./theme-provider";
 
 interface Particle {
   x: number;
@@ -16,6 +17,8 @@ interface Particle {
 }
 
 export function ParticleBackground() {
+  const { theme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<string>("light");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number | undefined>(undefined);
@@ -26,6 +29,12 @@ export function ParticleBackground() {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const lastFrameTime = useRef<number>(0);
   const targetFPS = useRef<number>(60);
+  const themeObserverRef = useRef<MutationObserver | null>(null);
+
+  // 当theme变化时更新currentTheme
+  useEffect(() => {
+    setCurrentTheme(theme === "dark" ? "dark" : "light");
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -109,8 +118,8 @@ export function ParticleBackground() {
         Math.floor(window.innerWidth / 20), // 减小除数以增加粒子数量（原来是30）
       );
 
-      // 扩展颜色数组，添加更多不同色系的颜色
-      const colors = [
+      // 基于当前主题选择颜色数组
+      const lightModeColors = [
         // 蓝色系
         "rgba(100, 149, 237, 0.7)", // 矢车菊蓝
         "rgba(65, 105, 225, 0.7)", // 宝蓝色
@@ -132,6 +141,31 @@ export function ParticleBackground() {
         "rgba(255, 165, 0, 0.7)", // 橙色
         "rgba(255, 140, 0, 0.7)", // 深橙色
       ];
+
+      const darkModeColors = [
+        // 明亮的蓝色系
+        "rgba(135, 206, 250, 0.7)", // 亮天蓝色
+        "rgba(173, 216, 230, 0.7)", // 亮蓝色
+        "rgba(175, 238, 238, 0.7)", // 亮青色
+        // 紫色系
+        "rgba(216, 191, 216, 0.7)", // 蓟色
+        "rgba(221, 160, 221, 0.7)", // 梅红色
+        "rgba(238, 130, 238, 0.7)", // 紫罗兰色
+        // 绿色系 - 更亮的色调
+        "rgba(144, 238, 144, 0.7)", // 亮绿色
+        "rgba(152, 251, 152, 0.7)", // 亮绿
+        "rgba(127, 255, 212, 0.7)", // 碧绿色
+        // 亮橙/黄色系
+        "rgba(255, 215, 0, 0.7)", // 金色
+        "rgba(255, 218, 185, 0.7)", // 桃色
+        "rgba(255, 228, 181, 0.7)", // 蜜橙色
+        "rgba(255, 250, 205, 0.7)", // 亮柠檬绸色
+        // 亮粉色系
+        "rgba(255, 182, 193, 0.7)", // 浅粉红
+        "rgba(255, 192, 203, 0.7)", // 粉红
+      ];
+
+      const colors = currentTheme === "dark" ? darkModeColors : lightModeColors;
 
       // 更加均匀地分布粒子
       for (let i = 0; i < particleCount; i++) {
@@ -363,6 +397,7 @@ export function ParticleBackground() {
       // 清理
       observerRef.current?.disconnect();
       visibilityObserverRef.current?.disconnect();
+      themeObserverRef.current?.disconnect();
       window.removeEventListener("mousemove", updateMousePosition);
 
       // 停止所有GSAP动画
@@ -376,7 +411,7 @@ export function ParticleBackground() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [currentTheme]);
 
   return (
     <canvas

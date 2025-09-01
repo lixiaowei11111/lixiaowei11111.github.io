@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { Navbar } from "@/components/navbar";
 import { ParticleBackground } from "@/components/particle-background";
+import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
 import cn from "clsx";
@@ -91,22 +92,24 @@ export default function RootLayout({
           geistMono.variable,
         )}
       >
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics
-            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
-          />
-        )}
-        <a href="#main-content" className="skip-link">
-          跳转到主要内容
-        </a>
-        <ParticleBackground />
-        <div className="relative z-10 flex min-h-screen flex-col">
-          <Navbar />
-          <main id="main-content" className="flex-1" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+          {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+            <GoogleAnalytics
+              measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
+            />
+          )}
+          <a href="#main-content" className="skip-link">
+            跳转到主要内容
+          </a>
+          <ParticleBackground />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <Navbar />
+            <main id="main-content" className="flex-1" tabIndex={-1}>
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
