@@ -1,7 +1,6 @@
 "use client";
 
 import { Calendar, Clock, Tag } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +52,7 @@ export function BlogCard({ post, featured = false, className }: BlogCardProps) {
           featured && "ring-1 ring-primary/20",
         )}
       >
+        {/* 删除封面图片部分
         {post.coverImage && (
           <div className="relative h-48 overflow-hidden">
             <Image
@@ -70,9 +70,11 @@ export function BlogCard({ post, featured = false, className }: BlogCardProps) {
             )}
           </div>
         )}
+        */}
 
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2 mb-2">
+          {/* 添加精选徽章到标题旁边而不是封面上 */}
+          <div className="flex items-center justify-between gap-2 mb-2">
             <Badge
               variant="outline"
               className={cn("text-xs", getCategoryColor(post.category))}
@@ -83,6 +85,10 @@ export function BlogCard({ post, featured = false, className }: BlogCardProps) {
               {post.category === "tools" && "开发工具"}
               {post.category === "tutorial" && "教程"}
             </Badge>
+
+            {featured && (
+              <Badge className="bg-primary text-primary-foreground">精选</Badge>
+            )}
           </div>
 
           <Link href={`/blog/${post.slug}`}>

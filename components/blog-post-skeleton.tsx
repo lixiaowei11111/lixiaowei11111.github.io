@@ -18,37 +18,40 @@ export function BlogPostSkeleton() {
               </div>
             </AnimatedElement>
 
-            {/* 文章头部骨架 */}
+            {/* 文章头部骨架 - 优化布局 */}
             <AnimatedElement animation="slideInUp" className="mb-8">
-              <Card className="p-8 border-2">
-                <div className="space-y-6">
-                  {/* 分类标签骨架 */}
-                  <div className="flex items-center gap-2">
-                    <Skeleton width={60} height={16} />
+              <Card className="p-6 border">
+                <div className="space-y-4">
+                  {/* 分类标签和元数据骨架 */}
+                  <div className="flex items-center justify-between gap-2">
+                    <Skeleton width={80} height={16} />
+                    <div className="flex items-center gap-3">
+                      <Skeleton width={60} height={16} />
+                      <Skeleton width={100} height={16} />
+                    </div>
                   </div>
 
                   {/* 标题骨架 */}
-                  <div className="space-y-3">
-                    <Skeleton height={40} />
-                    <Skeleton height={40} width="80%" />
+                  <div>
+                    <Skeleton height={36} />
+                    <Skeleton height={36} width="80%" className="mt-2" />
                   </div>
 
                   {/* 摘要骨架 */}
                   <div className="space-y-2">
-                    <Skeleton height={24} />
-                    <Skeleton height={24} width="90%" />
-                    <Skeleton height={24} width="70%" />
+                    <Skeleton height={20} />
+                    <Skeleton height={20} width="90%" />
                   </div>
 
-                  {/* 元信息骨架 */}
-                  <div className="flex flex-wrap items-center gap-4">
+                  {/* 作者和日期信息骨架 */}
+                  <div className="flex flex-wrap items-center gap-4 pt-2">
                     <Skeleton width={80} height={16} />
                     <Skeleton width={120} height={16} />
                     <Skeleton width={100} height={16} />
                   </div>
 
                   {/* 标签骨架 */}
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
                     <Skeleton width={50} height={24} />
                     <Skeleton width={70} height={24} />
                     <Skeleton width={60} height={24} />
@@ -58,7 +61,7 @@ export function BlogPostSkeleton() {
             </AnimatedElement>
 
             {/* 文章内容骨架 */}
-            <Card className="p-8 border-2">
+            <Card className="p-8 border">
               <div className="prose prose-lg max-w-none space-y-6">
                 {/* 模拟段落 */}
                 <div className="space-y-3">
@@ -127,16 +130,35 @@ export function BlogPostSkeleton() {
                 <Skeleton height={32} width={150} className="mb-6" />
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {[1, 2, 3].map((i) => (
-                    <Card key={i} className="p-6 border-2">
+                    <Card key={i} className="p-6 border">
                       <div className="space-y-4">
+                        {/* 分类和精选徽章 */}
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <Skeleton width={60} height={16} />
+                          {i === 1 && <Skeleton width={40} height={16} />}
+                        </div>
+
+                        {/* 标题 */}
                         <Skeleton height={24} />
+
+                        {/* 摘要 */}
                         <div className="space-y-2">
                           <Skeleton height={16} />
                           <Skeleton height={16} width="80%" />
                         </div>
-                        <div className="flex justify-between items-center">
-                          <Skeleton width={80} height={14} />
+
+                        {/* 元数据 */}
+                        <div className="flex items-center gap-2">
                           <Skeleton width={60} height={14} />
+                          <Skeleton width={80} height={14} />
+                          <Skeleton width={40} height={14} />
+                        </div>
+
+                        {/* 标签 */}
+                        <div className="flex gap-1">
+                          <Skeleton width={40} height={18} />
+                          <Skeleton width={50} height={18} />
+                          <Skeleton width={30} height={18} />
                         </div>
                       </div>
                     </Card>
@@ -154,7 +176,7 @@ export function BlogPostSkeleton() {
 export function BlogPostContentSkeleton() {
   return (
     <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb" enableAnimation>
-      <Card className="p-8 border-2">
+      <Card className="p-8 border">
         <div className="prose prose-lg max-w-none space-y-6">
           {/* 模拟段落 */}
           <div className="space-y-3">
@@ -188,6 +210,24 @@ export function BlogPostContentSkeleton() {
             <Skeleton height={20} />
             <Skeleton height={20} width="90%" />
             <Skeleton height={20} width="80%" />
+          </div>
+
+          {/* 模拟另一个标题 */}
+          <div className="pt-4">
+            <Skeleton height={28} width="50%" />
+          </div>
+
+          {/* 模拟列表 */}
+          <div className="space-y-2">
+            <Skeleton height={18} width="70%" />
+            <Skeleton height={18} width="65%" />
+            <Skeleton height={18} width="75%" />
+          </div>
+
+          {/* 模拟最后的段落 */}
+          <div className="space-y-3">
+            <Skeleton height={20} />
+            <Skeleton height={20} width="85%" />
           </div>
         </div>
       </Card>

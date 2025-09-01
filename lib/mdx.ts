@@ -36,8 +36,9 @@ export function getPostSlugs(): string[] {
 // 根据 slug 获取文章数据
 export function getPostBySlug(slug: string): BlogPost | null {
   try {
-    const fullPath = path.join(postsDirectory, `${slug}.mdx`);
-    const fallbackPath = path.join(postsDirectory, `${slug}.md`);
+    const decodedSlug = decodeURIComponent(slug);
+    const fullPath = path.join(postsDirectory, `${decodedSlug}.mdx`);
+    const fallbackPath = path.join(postsDirectory, `${decodedSlug}.md`);
 
     let fileContents = "";
     let actualPath = "";

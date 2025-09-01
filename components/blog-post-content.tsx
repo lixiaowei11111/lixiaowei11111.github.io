@@ -53,41 +53,52 @@ export function BlogPostContent({
             </Link>
           </AnimatedElement>
 
-          {/* 文章头部 */}
+          {/* 文章头部 - 优化布局 */}
           <AnimatedElement animation="slideInUp" className="mb-8">
-            <Card className="p-8 border-2">
-              <div className="space-y-6">
+            <Card className="p-6 border">
+              <div className="space-y-4">
                 {/* 分类标签 */}
-                {category && (
-                  <div className="flex items-center gap-2">
-                    <Folder
-                      className="h-4 w-4"
-                      style={{ color: category.color }}
-                    />
-                    <Link
-                      href={`/categories/${category.slug}`}
-                      className="text-sm font-medium hover:underline"
-                      style={{ color: category.color }}
-                    >
-                      {category.name}
-                    </Link>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  {category && (
+                    <div className="flex items-center gap-2">
+                      <Folder
+                        className="h-4 w-4"
+                        style={{ color: category.color }}
+                      />
+                      <Link
+                        href={`/categories/${category.slug}`}
+                        className="text-sm font-medium hover:underline"
+                        style={{ color: category.color }}
+                      >
+                        {category.name}
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* 右侧元信息 */}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <ViewCounter slug={renderedPost.slug} />
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>阅读时间 {renderedPost.readingTime} 分钟</span>
+                    </div>
                   </div>
-                )}
+                </div>
 
                 {/* 标题 */}
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                <h1 className="text-3xl md:text-4xl font-bold leading-tight">
                   {renderedPost.title}
                 </h1>
 
                 {/* 摘要 */}
                 {renderedPost.excerpt && (
-                  <p className="text-xl text-muted-foreground leading-relaxed">
+                  <p className="text-lg text-muted-foreground leading-relaxed">
                     {renderedPost.excerpt}
                   </p>
                 )}
 
-                {/* 元信息 */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                {/* 作者和日期信息 */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-2">
                   <div className="flex items-center gap-1">
                     <User className="h-4 w-4" />
                     <span>{renderedPost.author}</span>
@@ -116,16 +127,11 @@ export function BlogPostContent({
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>阅读时间 {renderedPost.readingTime} 分钟</span>
-                  </div>
-                  <ViewCounter slug={renderedPost.slug} />
                 </div>
 
                 {/* 标签 */}
                 {renderedPost.tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
                     <Tag className="h-4 w-4 text-muted-foreground" />
                     {renderedPost.tags.map((tag) => (
                       <Link
@@ -147,7 +153,7 @@ export function BlogPostContent({
           </AnimatedElement>
 
           {/* 文章内容 */}
-          <Card className="p-8 border-2">
+          <Card className="p-8 border">
             <article
               className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-m-20 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-blockquote:border-primary prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground"
               // biome-ignore lint/security/noDangerouslySetInnerHtml: MDX content is pre-processed and safe

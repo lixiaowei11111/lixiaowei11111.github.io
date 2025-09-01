@@ -15,7 +15,7 @@ import { getRenderedPost } from "@/lib/mdx-render";
 export async function generateStaticParams() {
   const slugs = getPostSlugs();
   return slugs.map((slug) => ({
-    slug: slug,
+    slug: encodeURIComponent(slug),
   }));
 }
 
@@ -42,7 +42,6 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.publishedAt,
       authors: [post.author],
-      images: post.coverImage ? [post.coverImage] : [],
     },
   };
 }
