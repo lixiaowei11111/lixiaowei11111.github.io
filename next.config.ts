@@ -2,6 +2,7 @@ import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
+import rehypeMdxCodeProps from "rehype-mdx-code-props";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
@@ -9,7 +10,17 @@ const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
-      rehypeHighlight,
+      // 添加rehype-mdx-code-props以支持代码块元数据
+      rehypeMdxCodeProps,
+      // 配置rehypeHighlight以正确地应用语法高亮
+      [
+        rehypeHighlight,
+        {
+          detect: true, // 自动检测语言
+          ignoreMissing: true, // 忽略找不到的语言
+          subset: false, // 使用完整语言集
+        },
+      ],
       rehypeSlug,
       [
         rehypeAutolinkHeadings,

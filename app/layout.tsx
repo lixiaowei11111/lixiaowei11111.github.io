@@ -7,6 +7,8 @@ import { ParticleBackground } from "@/components/particle-background";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "@/lib/config";
 import "./globals.css";
+// 导入highlight.js样式 - 选择一个主题，比如github-dark
+import "highlight.js/styles/github-dark.css";
 import cn from "clsx";
 
 const geistSans = Geist({
