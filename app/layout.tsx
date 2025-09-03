@@ -32,6 +32,9 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "jZIW_JJilnDkihlbOvJH_2viVeLvwWXCACY_agwifhU",
+    other: {
+      "msvalidate.01": "251506A8C8052BFBD12CD6A66D49B33A",
+    },
   },
   description: siteConfig.description,
   keywords: [
